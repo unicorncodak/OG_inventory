@@ -2,12 +2,26 @@ const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-
+const mongoose = require('mongoose');
+const passport = require('passport');
+const session = require('express-session');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 
 const app = express();
 
+// Setup passport
+require('./config/passport')(passport);
+
+// Setup dotenv
+require('dotenv').config();
+
+// Setup mongoose
+const mongoUrl = process.env.MONGO_URL;
+// Connect to mongo
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected'))
+  .catch(err => console.log(err));
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -21,6 +35,16 @@ app.use('/users', usersRouter);
 app.use((req, res, next) => {
   next(createError(404));
 });
+
+// Express session
+app.use(session({
+  secret: 'og inventory system',
+  resave: true,
+  saveUninitialized: true
+}));
+
+// Passport config middleware
+// app.use(passprt.initiliaze)
 
 // error handler
 app.use((err, req, res) => {
