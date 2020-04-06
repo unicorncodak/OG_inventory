@@ -11,8 +11,14 @@ const isAuthAdmin = require('../middleware/isAuthAdmin');
 const User = require('../models/User');
 
 /* GET users listing. */
-router.get('/', (req, res) => {
-  res.send('respond with a resource');
+router.get('/', isAuthAdmin, (req, res) => {
+  User.find({}, (err, users) => {
+    if (err) {
+      res.status(500).json(err);
+    } else {
+      res.status(200).json(users);
+    }
+  });
 });
 
 router.post('/register', isAuthAdmin, (req, res) => {
@@ -69,7 +75,7 @@ router.post('/register', isAuthAdmin, (req, res) => {
   }
 });
 
-router.post('/login', isAdmin, (req, res, next) => {
+router.post('/login', (req, res, next) => {
   passport.authenticate('local', { session: false }, (err, user, info) => {
     if (err) {
       res.status(400).json({ err });
@@ -89,43 +95,39 @@ router.post('/login', isAdmin, (req, res, next) => {
 });
 
 //update User
-router.post('/:userId',(req,res,next)=>{
+router.post('/:userId', isAuthAdmin, (req, res, next) => {
+  console.log(req.body);
   const id = req.params.userId;
   const updateOps = {};
-  for(const ops of req.body){
-     updateOps[ops.propName] = ops.value;
+  for (const ops in req.body) {
+    updateOps[ops.propName] = ops.value;
   }
-  User.update({ogId:id},{$set:updateOps})
+  User.update({ ogId: id }, { $set: updateOps })
     .exec()
-    .then(result =>{
-        console.log(result);
-        res.status(200).json(result);
+    .then(result => {
+      res.status(200).json(result);
     })
     .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            error:err
-        });
+      res.status(500).json({
+        error: err
+      });
     });
-
-
 });
 
 //delete User
-router.delete('/:userId' , (req, res, next) =>{
+router.delete('/:userId', isAuthAdmin, (req, res, next) => {
   const id = req.params.userId;
-  User.remove({ogId: id})
-      .exec()
-      .then( result => {
-          res.status(200).json(result);
-      })
-      .catch(err => {
-          console.log(err);
-          res.status(500).json({
-              error:err
-          });
+  User.remove({ ogId: id })
+    .exec()
+    .then(result => {
+      res.status(200).json(result);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error: err
       });
-
+    });
 });
 
 function isAdmin(req, res, next) {
