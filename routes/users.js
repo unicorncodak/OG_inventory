@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const passport = require('passport');
 
 // User model
@@ -65,18 +66,31 @@ router.post('/register', (req, res) => {
   }
 });
 
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, done, info) => {
+router.post('/login', isAdmin, (req, res, next) => {
+  passport.authenticate('local', { session: false }, (err, user, info) => {
     if (err) {
       res.status(400).json({ err });
     }
-
-    if (done) {
-      res.status(200).json({ done });
+    req.login(user, { session: false }, (err) => {
+      if (err) {
+        res.json(err);
+      }
+    })
+    if (user) {
+      const token = jwt.sign(JSON.parse(JSON.stringify(user)), 'this is my jwt secret, nice right?');
+      res.status(200).json({ user, token });
     } else {
       res.status(400).json(info);
     }
   })(req, res, next)
 });
+
+function isAdmin(req, res, next) {
+  User.findOne({ email: req.body.email }, (err, user) => {
+    if (user && user.role.toLowerCase() === 'admin') {
+      next();
+    }
+  })
+}
 
 module.exports = router;

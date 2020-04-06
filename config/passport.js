@@ -1,4 +1,7 @@
 const LocalStrategy = require('passport-local').Strategy;
+const passportJWT = require('passport-jwt');
+const JWTStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -32,14 +35,23 @@ module.exports = function(passport) {
     })
   );
 
-  passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
+  passport.use(new JWTStrategy({
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: 'this is my jwt secret, nice right?'
+  }, (jwtPayload, done) => {
+    return done(null, jwtPayload);
+  }
+  ));
 
-  passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-      done(err, user);
-    });
-  });
+  // passport.serializeUser((user, done) => {
+  //   done(null, user.id);
+  // });
+
+  // passport.deserializeUser((id, done) => {
+  //   console.log(id);
+  //   // User.findById(id, (err, user) => {
+  //   //   done(err, user);
+  //   // });
+  // });
 
 }
