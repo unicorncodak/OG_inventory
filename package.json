@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"eslint .\" \"node ./bin/www\"",
+    "start": "concurrently \"eslint .\" \"nodemon ./bin/www\"",
     "lint": "./node_modules/.bin/eslint .",
     "fix": "./node_modules/.bin/eslint . --fix"
   },
@@ -19,6 +19,7 @@
     "concurrently": "^5.1.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.19.0"
+    "eslint-plugin-react": "^7.19.0",
+    "nodemon": "^2.0.2"
   }
 }
