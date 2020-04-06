@@ -8,9 +8,11 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const User = require('./models/User');
 
 const app = express();
+
+// Importing middlewares
+const isAuthAdmin = require('./middleware/isAuthAdmin');
 
 // Setup passport
 require('./config/passport')(passport);
@@ -31,7 +33,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/users', usersRouter);
-app.use('/', [isAdmin, passport.authenticate('jwt', { session: false })], indexRouter);
+// Only logged in admins can access this endpoint.
+app.use('/', [isAuthAdmin, passport.authenticate('jwt', { session: false })], indexRouter);
+
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -48,20 +52,20 @@ app.use(session({
 // Passport config middleware
 app.use(passport.initialize());
 
-// App middleware
-function isAdmin(req, res, next) {
-  let token = req.headers.authorization;
-  // Check is user is an admin after signed in
-  if (token) {
-    token = token.split(' ')[1];
-    const decodedToken = jwt.verify(token, 'this is my jwt secret, nice right?');
-    if (decodedToken.role.toLowerCase() === 'admin') {
-      next();
-    } else {
-      res.status(401).json({ msg: "You don't have the right access" });
-    }
-  }
-}
+// // App middleware
+// function isAdmin(req, res, next) {
+//   let token = req.headers.authorization;
+//   // Check is user is an admin after signed in
+//   if (token) {
+//     token = token.split(' ')[1];
+//     const decodedToken = jwt.verify(token, 'this is my jwt secret, nice right?');
+//     if (decodedToken.role.toLowerCase() === 'admin') {
+//       next();
+//     } else {
+//       res.status(401).json({ msg: "You don't have the right access" });
+//     }
+//   }
+// }
 
 // error handler
 app.use((err, req, res) => {

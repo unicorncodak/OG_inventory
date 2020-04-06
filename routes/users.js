@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 
+// Importing middlewares
+const isAuthAdmin = require('../middleware/isAuthAdmin');
+
 // User model
 const User = require('../models/User');
 
@@ -12,7 +15,7 @@ router.get('/', (req, res) => {
   res.send('respond with a resource');
 });
 
-router.post('/register', (req, res) => {
+router.post('/register', isAuthAdmin, (req, res) => {
   const { fullName, ogId, campaign, role, password, phone, email } = req.body;
   const errors = [];
   // Check required fields
@@ -92,5 +95,6 @@ function isAdmin(req, res, next) {
     }
   })
 }
+
 
 module.exports = router;
