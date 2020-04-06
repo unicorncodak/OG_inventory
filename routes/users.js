@@ -85,6 +85,46 @@ router.post('/login', isAdmin, (req, res, next) => {
   })(req, res, next)
 });
 
+//update User
+router.post('/:userId',(req,res,next)=>{
+  const id = req.params.userId;
+  const updateOps = {};
+  for(const ops of req.body){
+     updateOps[ops.propName] = ops.value;
+  }
+  User.update({ogId:id},{$set:updateOps})
+    .exec()
+    .then(result =>{
+        console.log(result);
+        res.status(200).json(result);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            error:err
+        });
+    });
+
+
+});
+
+//delete User
+router.delete('/:userId' , (req, res, next) =>{
+  const id = req.params.userId;
+  User.remove({ogId: id})
+      .exec()
+      .then( result => {
+          res.status(200).json(result);
+      })
+      .catch(err => {
+          console.log(err);
+          res.status(500).json({
+              error:err
+          });
+      });
+
+});
+
 function isAdmin(req, res, next) {
   User.findOne({ email: req.body.email }, (err, user) => {
     if (user && user.role.toLowerCase() === 'admin') {
