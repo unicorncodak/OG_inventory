@@ -34,7 +34,8 @@ app.use(cookieParser());
 
 app.use('/users', usersRouter);
 // Only logged in admins can access this endpoint.
-app.use('/', [isAuthAdmin, passport.authenticate('jwt', { session: false })], indexRouter);
+const middleware = [isAuthAdmin, authorized];
+app.use('/', middleware, indexRouter);
 
 
 // catch 404 and forward to error handler
@@ -53,19 +54,19 @@ app.use(session({
 app.use(passport.initialize());
 
 // // App middleware
-// function isAdmin(req, res, next) {
-//   let token = req.headers.authorization;
-//   // Check is user is an admin after signed in
-//   if (token) {
-//     token = token.split(' ')[1];
-//     const decodedToken = jwt.verify(token, 'this is my jwt secret, nice right?');
-//     if (decodedToken.role.toLowerCase() === 'admin') {
-//       next();
-//     } else {
-//       res.status(401).json({ msg: "You don't have the right access" });
-//     }
-//   }
-// }
+function authorized(req, res, next) {
+  passport.authenticate('jwt', { session: false }, (err, user) => {
+    if (err || !user) {
+      res.status(401).json({ msg: "Unauthorized" });
+    }
+  // Check is user is an admin after signed in
+    if (user.role.toLowerCase() === 'admin') {
+      next();
+    } else {
+      res.status(401).json({ msg: "You don't have the right access" });
+    }
+  })(req, res, next)
+}
 
 // error handler
 app.use((err, req, res) => {
