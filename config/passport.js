@@ -39,6 +39,9 @@ module.exports = function(passport) {
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     secretOrKey: 'this is my jwt secret, nice right?'
   }, (jwtPayload, done) => {
+    if (!jwtPayload) {
+      return done(null, false, { msg: 'Unauthorized' });
+    }
     return done(null, jwtPayload);
   }
   ));

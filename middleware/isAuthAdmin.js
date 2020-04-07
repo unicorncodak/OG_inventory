@@ -8,13 +8,17 @@ module.exports = function(req, res, next) {
     jwt.verify(token, 'this is my jwt secret, nice right?', (err, decodedToken) => {
       if (err) {
         res.status(500).json({ msg: "Invalid Token" });
+        next(err);
       } else {
         if (decodedToken.role.toLowerCase() === 'admin') {
           next();
         } else {
           res.status(401).json({ msg: "You don't have the right access" });
+          next(err);
         }
       }
     });
+  } else {
+    res.status(500).json({ msg: "Unauthorized" });
   }
 }
