@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const devicesRouter = require('./routes/devices');
+const assignmentsRouter = require('./routes/assignments');
 
 const app = express();
 
@@ -33,6 +35,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/users', usersRouter);
+
+app.use('/devices', devicesRouter);
+app.use('/assign', assignmentsRouter);
 // Only logged in admins can access this endpoint.
 const middleware = [isAuthAdmin, authorized];
 app.use('/', middleware, indexRouter);
