@@ -15,6 +15,7 @@ const assignmentsRouter = require('./routes/assignments');
 const cors = require("cors");
 
 const app = express();
+app.use(cors());
 
 // Importing middlewares
 const isAuthAdmin = require('./middleware/isAuthAdmin');
@@ -36,6 +37,18 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    if (req.method === "OPTIONS"){
+        res.header('Access-Control-Allow-Methods', "PUT, PATCH, POST, GET, DELETE");
+        return res.status(200).json({});
+    }
+    next();
+})
 
 app.use('/users', usersRouter);
 
@@ -44,7 +57,6 @@ app.use('/assign', assignmentsRouter);
 // Only logged in admins can access this endpoint.
 const middleware = [isAuthAdmin, authorized];
 app.use('/', middleware, indexRouter);
-app.use(cors());
 
 
 // catch 404 and forward to error handler
