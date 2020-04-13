@@ -12,6 +12,8 @@ const usersRouter = require('./routes/users');
 const devicesRouter = require('./routes/devices');
 const assignmentsRouter = require('./routes/assignments');
 
+const cors = require("cors");
+
 const app = express();
 
 // Importing middlewares
@@ -42,6 +44,7 @@ app.use('/assign', assignmentsRouter);
 // Only logged in admins can access this endpoint.
 const middleware = [isAuthAdmin, authorized];
 app.use('/', middleware, indexRouter);
+app.use(cors());
 
 
 // catch 404 and forward to error handler
