@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const http = require('http');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
@@ -10,6 +11,8 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const devicesRouter = require('./routes/devices');
 const assignmentsRouter = require('./routes/assignments');
+
+const cors = require("cors");
 
 const app = express();
 
@@ -41,6 +44,7 @@ app.use('/assign', assignmentsRouter);
 // Only logged in admins can access this endpoint.
 const middleware = [isAuthAdmin, authorized];
 app.use('/', middleware, indexRouter);
+app.use(cors());
 
 
 // catch 404 and forward to error handler
@@ -84,4 +88,10 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-module.exports = app;
+// module.exports = app;
+
+var port = process.env.PORT || '3000'
+var server = http.createServer(app);
+server.listen(port, () => {
+  console.log(`Listening to port ${port}`);
+})
