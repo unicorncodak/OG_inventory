@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const http = require('http');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
@@ -84,4 +85,10 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-module.exports = app;
+// module.exports = app;
+
+var port = process.env.PORT || '3000'
+var server = http.createServer(app);
+server.listen(port, () => {
+  console.log(`Listening to port ${port}`);
+})
