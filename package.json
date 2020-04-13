@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"eslint .\" \"nodemon ./bin/www\"",
+    "start": "concurrently \"eslint .\" \"node ./bin/www\"",
     "lint": "./node_modules/.bin/eslint .",
     "fix": "./node_modules/.bin/eslint . --fix"
   },
