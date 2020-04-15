@@ -4,6 +4,7 @@ const mongoose = require("mongoose")
 
 const Device = require("../models/Device")
 const Assignment = require("../models/Assignment")
+const User = require("../models/User")
 
 const { Validator } = require('node-input-validator')
 const DeviceResource = require('../models/DeviceResource');
@@ -158,10 +159,15 @@ router.post("/", isAuthAdmin, async(req, res) => {
             if(req.body.itemType == "single" && req.body.itemQuantity > 1){
                 res.status(422).json({message: "Quantity of single device provided is more than one"})
             }else{
-                const device = new Device(req.body)
-                device.itemId = mongoose.Types.ObjectId()
-                await device.save()
-                res.status(200).json({message: "Device saved successfully", data: device})
+                const user = await User.findOne({ogId: req.body.createdById})
+                if(user && user.role == "admin"){
+                    req.body.itemId = mongoose.Types.ObjectId()
+                    const device = new Device(req.body)
+                    await device.save()
+                    res.status(200).json({message: "Device saved successfully", data: device})
+                }else{
+                    res.status(422).json({message: "Please provide a valid user that is an admin"})
+                }
             }
         }
     }catch(err){

@@ -46,10 +46,10 @@ router.post("/undo", isAuthAdmin, async(req, res) => {
             res.status(422).json({message: "Validation Error", errors: error_messages})
         }else{
             const device = await Device.findOne({itemId: req.body.itemId})
-            const assigned = await Assignment.findOneAndUpdate({itemId: req.body.itemId}, {
-                assigned: false 
-            }, {new: true})
             if(device){
+                const assigned = await Assignment.findOneAndUpdate({itemId: req.body.itemId}, {
+                    assigned: false 
+                }, {new: true})
                 if(assigned){
                     res.status(200).json({message: "Device Unassigned successfully"})
                 }else{
