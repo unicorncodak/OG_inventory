@@ -5,4 +5,4 @@ const DeviceResource = mongoose.Schema({
     filesPath:{type : Array, "default" : [] }
 });
 
-module.exports = mongoose.model('DeviceResource',DeviceResource);
+module.exports = mongoose.model('DeviceResource',DeviceResource) ;

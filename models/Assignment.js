@@ -7,15 +7,14 @@ const assignmentSchema = mongoose.Schema({
         required: true,
         ref: "Device"
     },
-    employee_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
     device_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Device"
     },
     ogId: {
+        type: String
+    },
+    full_name: {
         type: String
     },
     itemOutDate: {

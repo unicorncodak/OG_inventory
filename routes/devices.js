@@ -10,22 +10,13 @@ const DeviceResource = require('../models/DeviceResource');
 // Importing middlewares
 const isAuthAdmin = require('../middleware/isAuthAdmin');
 
-router.get("/", isAuthAdmin, async(req, res) => {
+router.get("/", async(req, res) => {
     try{
         const devices = await Device.find({})
         res.status(200).json({message: "List of registered Devices", devices: devices})
     }catch(err){
         console.log(err)
         res.status(500).json({message: "Some Errors Occured", errors: err})        
-    }
-})
-
-router.post("/upload", isAuthAdmin/*, upload.multiple()*/, async(req, res) => {
-    try{        
-        res.status(200).json({message: "Images saved successfully!", file: req.files})
-    }catch(err){
-        console.log(err)
-        res.status(500).json({message: "Got some errors",errors: err})        
     }
 })
 
@@ -39,7 +30,8 @@ router.post("/bulk", isAuthAdmin, async(req, res) => {
             'items.*.createdById': 'required',
             'items.*.itemSerialNumber': 'string',
             'items.*.itemModel': 'required',
-            'items.*.itemColor': 'required'
+            'items.*.itemColor': 'required',
+            itemType: "required"
         });
          
         const matched = await v.check() 
@@ -99,7 +91,8 @@ router.put("/", isAuthAdmin, async(req, res) => {
             createdById: 'required',
             itemSerialNumber: 'required',
             itemModel: 'required',
-            itemColor: 'required'
+            itemColor: 'required',
+            itemType: "required|string"
           });
          
         const matched = await v.check()
@@ -151,9 +144,10 @@ router.post("/", isAuthAdmin, async(req, res) => {
             itemLocation: 'required',
             itemQuantity: 'required|numeric',
             createdById: 'required',
-            itemSerialNumber: 'required',
+            itemSerialNumber: 'string',
             itemModel: 'required',
-            itemColor: 'required'
+            itemColor: 'required',
+            itemType: "required|string"
           });
          
         const matched = await v.check()
@@ -161,12 +155,14 @@ router.post("/", isAuthAdmin, async(req, res) => {
             let error_messages = pile_error_messages(v.errors)
             res.status(422).json({message: "Validation Error", errors: error_messages})
         }else{            
-            const device = new Device(req.body)
-            device.itemId = mongoose.Types.ObjectId()
-            await device.save()        
-            const assignment = new Assignment({itemId: device.itemId})
-            await assignment.save()
-            res.status(200).json({message: "Device saved successfully", data: device})
+            if(req.body.itemType == "single" && req.body.itemQuantity > 1){
+                res.status(422).json({message: "Quantity of single device provided is more than one"})
+            }else{
+                const device = new Device(req.body)
+                device.itemId = mongoose.Types.ObjectId()
+                await device.save()
+                res.status(200).json({message: "Device saved successfully", data: device})
+            }
         }
     }catch(err){
         console.log(err)
@@ -206,6 +202,7 @@ var upload = multer({ storage : storage,
             let filePaths = [];
             let deviceId = req.body.deviceId
             req.files.forEach(el=>{
+                console.log(el)
                 filePaths.push(el.path);
             })
             if(err) {

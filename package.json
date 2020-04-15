@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node app",
+    "devStart": "nodemon app",
     "lint": "./node_modules/.bin/eslint .",
     "fix": "./node_modules/.bin/eslint . --fix"
   },
@@ -31,6 +32,6 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.19.0",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.3"
   }
 }

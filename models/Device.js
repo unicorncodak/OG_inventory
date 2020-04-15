@@ -28,6 +28,11 @@ const deviceSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    itemType:{
+        type: String,
+        required: true,
+        enum: ['single', 'bulk']
+    },
     createdById: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
