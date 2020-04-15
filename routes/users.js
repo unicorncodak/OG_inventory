@@ -21,6 +21,15 @@ router.get('/', isAuthAdmin, (req, res) => {
   });
 });
 
+router.post("/details", async(req, res) => {
+    try{
+        const user = await User.findOne({ogId: req.body.ogId})
+        res.status(200).json({message: "User details found successfully!", data: user})
+    }catch(err){
+        res.status(422).json({message: "Some errors occured", errors: err})
+    }
+})
+
 router.post('/register', isAuthAdmin, (req, res) => {
   const { fullName, ogId, campaign, role, password, phone, email } = req.body;
   const errors = [];

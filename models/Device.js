@@ -11,6 +11,10 @@ const deviceSchema = mongoose.Schema({
     },
     itemLocation: {
         type: String,
+        // required: true
+    },
+    itemQuantity: {
+        type: Number,
         required: true
     },
     itemSerialNumber: {

@@ -35,6 +35,7 @@ router.post("/bulk", isAuthAdmin, async(req, res) => {
             'items': "required|array",
             'items.*.itemName': 'required',
             'items.*.itemLocation': 'required',
+            'items.*.itemQuantity': 'required|numeric',
             'items.*.createdById': 'required',
             'items.*.itemSerialNumber': 'string',
             'items.*.itemModel': 'required',
@@ -94,6 +95,7 @@ router.put("/", isAuthAdmin, async(req, res) => {
             itemId: 'required',
             itemName: 'required',
             itemLocation: 'required',
+            itemQuantity: 'required|numeric',
             createdById: 'required',
             itemSerialNumber: 'required',
             itemModel: 'required',
@@ -147,6 +149,7 @@ router.post("/", isAuthAdmin, async(req, res) => {
         const v = new Validator(req.body, {
             itemName: 'required',
             itemLocation: 'required',
+            itemQuantity: 'required|numeric',
             createdById: 'required',
             itemSerialNumber: 'required',
             itemModel: 'required',
