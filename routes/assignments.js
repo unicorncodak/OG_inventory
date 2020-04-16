@@ -131,7 +131,7 @@ router.post("/employee", isAuthAdmin, async(req, res) => {
                 if(device.itemType == "single" && prev_assginment != null){
                     res.status(422).json({message: "Device is single and has been assigned to an employee already"})
                 }else{
-                    res.send(device)
+                    // res.send(device)
                     req.body.device_id = device._id
                     if(req.body.itemQtyGiven > device.itemQuantity){
                         res.status(422).json({message: "Device quantity less than what you want to assign"})
