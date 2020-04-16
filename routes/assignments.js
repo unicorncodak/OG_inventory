@@ -14,6 +14,15 @@ router.get("/", isAuthAdmin, async(req, res) => {
     res.status(200).json({message: "Right here miss"})
 })
 
+router.delete("/", isAuthAdmin, async(req, res) => {
+    try{
+        await Assignment.findOneAndDelete({_id: req.body._id})
+        res.json({message: "Assigned Device deleted"})
+    }catch(err){
+        res.status(500).json({message: "Some Error Occured", errors: err})    
+    }
+})
+
 router.get("/all", async(req, res) => {
     try{
         const devices_assigned = await Assignment.find({}).populate("device_id" )
