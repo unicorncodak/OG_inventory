@@ -123,17 +123,18 @@ router.post("/employee", isAuthAdmin, async(req, res) => {
                     res.status(422).json({message: "Device is single and has been assigned to an employee already"})
                 }else{
                     res.send(device)
-                    // req.body.device_id = device._id
-                    // if(req.body.itemQtyGiven > device.itemQuantity){
-                    //     res.status(422).json({message: "Device quantity less than what you want to assign"})
-                    // }else{
-                    //     const assigned = new Assignment(req.body)
-                    //     await assigned.save()
+                    req.body.device_id = device._id
+                    if(req.body.itemQtyGiven > device.itemQuantity){
+                        res.status(422).json({message: "Device quantity less than what you want to assign"})
+                    }else{
+                        res.send(device)
+                        // const assigned = new Assignment(req.body)
+                        // await assigned.save()
                         
-                    //     device.itemType == "bulk" ? device.itemQuantity = device.itemQuantity - req.body.itemQtyGiven : null
-                    //     await device.save()
-                    //     res.status(201).json({message: "Device assigned to employee successfully"})
-                    // }
+                        // device.itemType == "bulk" ? device.itemQuantity = device.itemQuantity - req.body.itemQtyGiven : null
+                        // await device.save()
+                        // res.status(201).json({message: "Device assigned to employee successfully"})
+                    }
                 }
             }else{
                 res.status(422).json({message: "Please provide a valid device id"})
