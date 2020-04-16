@@ -137,12 +137,12 @@ router.post("/employee", isAuthAdmin, async(req, res) => {
                         res.status(422).json({message: "Device quantity less than what you want to assign"})
                     }else{
                         const assigned = new Assignment(req.body)
-                        // await assigned.save()
+                        await assigned.save()
                         
                         device.itemType == "bulk" ? device.itemQuantity = device.itemQuantity - req.body.itemQtyGiven : null
-                        // await device.save()
-                        res.send({device: device, assgined: assigned})
-                        // res.status(201).json({message: "Device assigned to employee successfully"})
+                        await device.save()
+                        // res.send({device: device, assgined: assigned})
+                        res.status(201).json({message: "Device assigned to employee successfully"})
                     }
                 }
             }else{
