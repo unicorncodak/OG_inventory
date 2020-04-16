@@ -29,7 +29,7 @@ const assignmentSchema = mongoose.Schema({
     },
     assigned: {
         type: Boolean,
-        default: false
+        default: true
     }
 })
 

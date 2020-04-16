@@ -16,7 +16,7 @@ router.get("/", isAuthAdmin, async(req, res) => {
 
 router.get("/all", async(req, res) => {
     try{
-        const devices_assigned = await Assignment.find({assigned: true}).populate("employee_id device_id" )
+        const devices_assigned = await Assignment.find({}).populate("device_id" )
         res.json({message: "All Assigned Devices", assigned_devices: devices_assigned})
     }catch(err){
         console.log(err)
@@ -26,8 +26,14 @@ router.get("/all", async(req, res) => {
 
 router.get("/unassigned", async(req, res) => {
     try{
-        const devices_unassigned = await Assignment.find({assigned: false}).populate("employee_id device_id" )
-        res.json({message: "All Unassigned Devices", unassigned_devices: devices_unassigned})
+        const assigned = await Assignment.find({})
+        let assigned_item_ids = []
+        assigned.forEach(assignment => {
+            assigned_item_ids.push(assignment.itemId)
+        })
+        
+        const devices = await Device.find({itemId: {$nin: assigned_item_ids}})
+        res.json({message: "All Unassigned Devices", unassigned_devices: devices})
     }catch(err){
         console.log(err)
         res.status(500).json({message: "Some Error Occured", errors: err})    
@@ -37,7 +43,7 @@ router.get("/unassigned", async(req, res) => {
 router.post("/undo", isAuthAdmin, async(req, res) => {
     try{
         const v = new Validator(req.body, {
-            itemId: "required"
+            assignId: "required"
         })
 
         const matched = await v.check()
@@ -45,18 +51,16 @@ router.post("/undo", isAuthAdmin, async(req, res) => {
             let error_messages = pile_error_messages(v.errors)
             res.status(422).json({message: "Validation Error", errors: error_messages})
         }else{
-            const device = await Device.findOne({itemId: req.body.itemId})
-            if(device){
-                const assigned = await Assignment.findOneAndUpdate({itemId: req.body.itemId}, {
-                    assigned: false 
-                }, {new: true})
-                if(assigned){
-                    res.status(200).json({message: "Device Unassigned successfully"})
-                }else{
-                    res.status(422).json({message: "Device Not Assigned Yet"})
-                }
+            const assigned = await Assignment.findOneAndDelete({_id: req.body.assignId}, {
+                assigned: false 
+            })
+            if(assigned){
+                const device = await Device.findOne({itemId: assigned.itemId})
+                device.itemQuantity = device.itemQuantity - assigned.itemQtyGiven
+                await device.save()
+                res.status(200).json({message: "Device Unassigned successfully"})
             }else{
-                res.status(422).json({message: "Device Id Not Found"})
+                res.status(422).json({message: "Device Not Assigned Yet"})
             }
         }
     }catch(err){
@@ -68,37 +72,24 @@ router.post("/undo", isAuthAdmin, async(req, res) => {
 router.post("/modify", async(req, res) => {
     try{
         const v = new Validator(req.body, {
-            itemId: "required",
+            assignId: "required",
             ogId: "required",
-            itemOutDate: "required|date",
-            itemQtyGiven: "required",
-            givenById: "required"
-        }, {itemOutDate: 'Date format should be YYYY-MM-DD'})
+            full_name: "required",
+        })
 
         const matched = await v.check()
         if(!matched){
             let error_messages = pile_error_messages(v.errors)
             res.status(422).json({message: "Validation Error", errors: error_messages})
         }else{
-            const user = await User.findOne({ogId: req.body.ogId})
-            const device = await Device.findOne({itemId: req.body.itemId})
-            
-            if(user && device){
-                const assigned = await Assignment.findOneAndUpdate({itemId: req.body.itemId}, {
-                    ogId: req.body.ogId,
-                    itemOutDate: req.body.itemOutDate,
-                    itemQtyGiven: req.body.itemQtyGiven,
-                    givenById: req.body.givenById,
-                    assigned: true
-                }, {new: true})
-                console.log(assigned)
-                if(assigned){
-                    res.status(201).json({message: "Device assigned to another employee successfully", device: device, user: user, assigment: assigned})
-                }else{
-                    res.status(200).json({message: "Device has not been assigned"})
-                }
+            const assginment = await Assignment.findOneAndUpdate({_id: req.body.assignId}, {
+                ogId: req.body.ogId,
+                full_name: req.body.full_name
+            }, {new: true})
+            if(assginment){
+                res.status(200).json({message: "Device modified successfully"})
             }else{
-                res.status(422).json({message: "Please provide valid device and user"})
+                res.status(422).json({message: "Device could not be modified. Please provide correct id"})
             }
         }
     }catch(err){
@@ -136,15 +127,11 @@ router.post("/employee", isAuthAdmin, async(req, res) => {
                         res.status(422).json({message: "Device quantity less than what you want to assign"})
                     }else{
                         const assigned = new Assignment(req.body)
-                        await Assignment.findOneAndUpdate({itemId: req.body.itemId, assigned: false, ogId: null}, req.body)
+                        await assigned.save()
                         
-                        device.itemQuantity = device.itemQuantity - req.body.itemQtyGiven
+                        device.itemType == "bulk" ? device.itemQuantity = device.itemQuantity - req.body.itemQtyGiven : null
                         await device.save()
-                        if(assigned){
-                            res.status(201).json({message: "Device assigned to employee successfully"})
-                        }else{
-                            res.status(200).json({message: "Device has been assigned already"})
-                        }
+                        res.status(201).json({message: "Device assigned to employee successfully"})
                     }
                 }
             }else{
