@@ -6,6 +6,8 @@ const Device = require("../models/Device")
 const Assignment = require("../models/Assignment")
 const User = require("../models/User")
 
+const fs = require("fs")
+
 const { Validator } = require('node-input-validator')
 const DeviceResource = require('../models/DeviceResource');
 // Importing middlewares
@@ -205,6 +207,10 @@ var upload = multer({ storage : storage,
 
  router.post('/upload',isAuthAdmin, async function(req,res){
     try{
+            const dir = "fileServer"
+            if (!fs.existsSync(dir)){
+                fs.mkdirSync(dir);
+            }
             await  upload(req,res, async function(err) {
             let filePaths = [];
             let deviceId = req.body.deviceId
