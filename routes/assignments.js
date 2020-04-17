@@ -25,8 +25,15 @@ router.delete("/", isAuthAdmin, async(req, res) => {
 
 router.get("/all", async(req, res) => {
     try{
-        const devices_assigned = await Assignment.find({}).populate("device_id" )
-        res.json({message: "All Assigned Devices", assigned_devices: devices_assigned})
+        const assigned = await Assignment.find({})
+        let assigned_item_ids = []
+        assigned.forEach(assignment => {
+            assigned_item_ids.push(assignment.itemId)
+        })
+        
+        const devices = await Device.find({itemId: {$in: assigned_item_ids}})
+        const devices_assigned = await Assignment.find({}).populate("device_id")
+        res.json({message: "All Assigned Devices", assigned_devices: devices_assigned, devices: devices})
     }catch(err){
         console.log(err)
         res.status(500).json({message: "Some Error Occured", errors: err})    

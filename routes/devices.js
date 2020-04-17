@@ -127,6 +127,7 @@ router.delete("/", isAuthAdmin, async(req, res) => {
         }else{
             const device = await Device.findOneAndDelete({itemId: req.body.itemId})
             if(device){
+                await Assignment.remove({itemId: device.itemId})
                 res.status(200).json({message: "Device Deleted", data: device})
             }else{
                 res.status(422).json({message: "Device Not Found. Please Provide A Valid itemId"})
