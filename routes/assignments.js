@@ -70,14 +70,14 @@ router.post("/undo", isAuthAdmin, async(req, res) => {
             const assigned = await Assignment.findOneAndDelete({_id: req.body.assignId}, {
                 assigned: false 
             })
-            if(assigned){
-                const device = await Device.findOne({itemId: assigned.itemId})
-                device.itemQuantity = device.itemQuantity - assigned.itemQtyGiven
-                await device.save()
-                res.status(200).json({message: "Device Unassigned successfully"})
-            }else{
-                res.status(422).json({message: "Device Not Assigned Yet"})
-            }
+            // if(assigned){
+                // const device = await Device.findOne({itemId: assigned.itemId})
+                // device.itemQuantity = device.itemQuantity - assigned.itemQtyGiven
+                // await device.save()
+                res.status(200).json({message: "Unassigned successfully"})
+            // }else{
+            //     res.status(422).json({message: "Device Not Assigned Yet"})
+            // }
         }
     }catch(err){
         console.log(err)
